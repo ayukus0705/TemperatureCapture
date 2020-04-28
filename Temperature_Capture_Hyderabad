@@ -1,0 +1,37 @@
+import requests, json
+import csv
+import datetime
+import time
+from csv import writer
+
+#Below is the function to append row in csv file.
+def append_list_as_row(filename, list_of_elem):
+    with open(filename, 'a+', newline='') as write_obj:
+        csv_writer = writer(write_obj)
+        csv_writer.writerow(list_of_elem)
+
+
+filename = "<File_name>.csv"
+fields = ['Time', 'Temperature', 'Pressure', 'Humidity'] 
+with open(filename, 'w') as csvfile:   
+    csvwriter = csv.writer(csvfile)   
+    csvwriter.writerow(fields)
+for i in range(0,480):
+    complete_url = "http://api.openweathermap.org/data/2.5/weather?" + "appid=<API_Key>" + "&q=" + "<City_Name>" + ",%20" + "<Country_code>"
+    response = requests.get(complete_url) 
+    x = response.json() 
+    if x["cod"] != "404": 
+        y = x["main"] 
+        current_temperature = y["temp"] 
+        cpu=current_temperature-273.15  # converting kelvin into celsius
+        current_pressure = y["pressure"] 
+        current_humidiy = y["humidity"] 
+        z = x["weather"] 
+        weather_description = z[0]["description"] 
+    else: 
+        print(" City Not Found ")   
+    cdt=datetime.datetime.now()
+    time1 = cdt.strftime("%H:%M:%S") #This thing is just done to capture HH:MM:SS otherwise it was taking DD:MM:YY HH:MM:SS
+    row = [time1, cpu, current_pressure, current_humidiy]  
+    append_list_as_row('<File_name>.csv', row)
+    time.sleep(180)
